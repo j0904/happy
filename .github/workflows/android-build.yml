@@ -50,7 +50,8 @@ jobs:
       - name: Configure Gradle Memory
         working-directory: ./expo-app/android
         run: |
-          echo "org.gradle.jvmargs=-Xmx4096m -XX:MaxMetaspaceSize=512m -XX:+HeapDumpOnOutOfMemoryError -Dfile.encoding=UTF-8" >> gradle.properties
+          # Reduce heap to 3GB to prevent runner OOM
+          echo "org.gradle.jvmargs=-Xmx3072m -XX:MaxMetaspaceSize=512m -XX:+HeapDumpOnOutOfMemoryError -Dfile.encoding=UTF-8 -Dkotlin.daemon.jvm.options=\"-Xmx1024M\"" >> gradle.properties
           echo "org.gradle.daemon=false" >> gradle.properties
           echo "org.gradle.parallel=false" >> gradle.properties
 
