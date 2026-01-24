@@ -45,7 +45,8 @@ jobs:
         env:
           APP_ENV: ${{ inputs.profile }}
         run: |
-          yarn prebuild --platform android --no-interactive
+          rm -rf android ios
+          npx expo prebuild --platform android --no-interactive
 
       - name: Build Android APK
         working-directory: ./expo-app/android
