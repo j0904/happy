@@ -50,6 +50,8 @@ jobs:
 
       - name: Build Android APK
         working-directory: ./expo-app/android
+        env:
+          GRADLE_OPTS: '-Dorg.gradle.jvmargs="-Xmx4g -XX:MaxMetaspaceSize=1g -Dfile.encoding=UTF-8"'
         run: |
           chmod +x gradlew
           ./gradlew assembleDebug
