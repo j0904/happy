@@ -2,7 +2,9 @@ name: Build Android APK
 
 on:
   push:
-    branches: ["dev"]
+    branches: [ "main", "dev" ]
+    paths:
+      - 'expo-app/android/**'
   workflow_dispatch:
     inputs:
       profile:
