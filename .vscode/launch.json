@@ -1,0 +1,46 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Debug Happy Claude Server",
+      "type": "node",
+      "request": "launch",
+      "cwd": "${workspaceFolder}/server",
+      "runtimeExecutable": "node",
+      "runtimeArgs": [
+        "--env-file=.env",
+        "--env-file=.env.dev",
+        "./node_modules/tsx/dist/cli.mjs",
+        "./sources/main.ts"
+      ],
+
+      "env": {
+        "NODE_ENV": "development"
+      },
+      "console": "integratedTerminal",
+      "skipFiles": ["<node_internals>/**"],
+      "sourceMaps": true
+    },
+    {
+      "name": "Debug Happy CLI",
+      "type": "node",
+      "request": "launch",
+      "cwd": "${workspaceFolder}/cli",
+      "program": "${workspaceFolder}/cli/src/index.ts",
+      "runtimeExecutable": "node",
+      "runtimeArgs": [
+        "--no-warnings",
+        "--no-deprecation",
+        "--import",
+        "tsx"
+      ],
+      "args": ["claude"],
+      "env": {
+        "DEBUG": "true"
+      },
+      "console": "integratedTerminal",
+      "skipFiles": ["<node_internals>/**"],
+      "sourceMaps": true
+    }
+  ]
+}
