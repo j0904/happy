@@ -1,27 +1,22 @@
 name: Build Android APK
-
 on:
-  push:
-    branches: [ "main", "dev" ]
-    paths:
-      - 'expo-app/android/**'
   workflow_dispatch:
     inputs:
       profile:
-        description: 'Build profile (development, preview, production)'
+        description: 'Build profile (development/production)'
         required: true
-        default: 'preview'
+        default: 'development'
         type: choice
         options:
-          - development
-          - preview
-          - production
+        - development
+        - production
+  push:
+    branches:
+      - dev
 
 jobs:
   build:
-    name: Build Android APK
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -29,8 +24,8 @@ jobs:
       - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:
-          distribution: 'zulu'
           java-version: '17'
+          distribution: 'zulu'
           cache: 'gradle'
 
       - name: Set up Node.js
@@ -38,28 +33,33 @@ jobs:
         with:
           node-version: '20'
           cache: 'yarn'
+          cache-dependency-path: expo-app/yarn.lock
 
       - name: Install dependencies
+        working-directory: ./expo-app
         run: yarn install --frozen-lockfile
 
       - name: Expo Prebuild
         working-directory: ./expo-app
         env:
-          APP_ENV: ${{ inputs.profile }}
+          APP_ENV: ${{ inputs.profile || 'development' }}
         run: |
           rm -rf android ios
           npx expo prebuild --platform android
 
+      - name: Configure Gradle Memory
+        working-directory: ./expo-app/android
+        run: |
+          echo "org.gradle.jvmargs=-Xmx4096m -XX:MaxMetaspaceSize=512m -XX:+HeapDumpOnOutOfMemoryError -Dfile.encoding=UTF-8" >> gradle.properties
+          echo "org.gradle.daemon=false" >> gradle.properties
+          echo "org.gradle.parallel=false" >> gradle.properties
+
       - name: Build Android APK
         working-directory: ./expo-app/android
-        env:
-          GRADLE_OPTS: '-Dorg.gradle.jvmargs="-Xmx4g -XX:MaxMetaspaceSize=1g -Dfile.encoding=UTF-8"'
-        run: |
-          chmod +x gradlew
-          ./gradlew assembleDebug
+        run: ./gradlew assembleDebug --no-daemon --stacktrace
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: happy-android-${{ inputs.profile }}-debug
+          name: app-debug
           path: expo-app/android/app/build/outputs/apk/debug/app-debug.apk
